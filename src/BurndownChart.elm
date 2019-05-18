@@ -1,8 +1,22 @@
-module BurndownChart exposing (Config, Date, view)
+module BurndownChart exposing
+    ( Config, Date, view
+    , red, pink, gold, green, teal, cyan, blue, purple
+    )
 
 {-|
 
 @docs Config, Date, view
+
+
+## Colors
+
+These are the basic colors available in `terezka/line-charts`, but are exposed here for convenience so you don't have to add more direct dependencies.
+
+If you want other colors, you can use colors from [`LineCharts.Colors`](https://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Colors),
+any color you can create with [`avh4/elm-color`](https://package.elm-lang.org/packages/avh4/elm-color/latest),
+or colors from any other package that produces a [`Color`](https://package.elm-lang.org/packages/avh4/elm-color/latest/Color).
+
+@docs red, pink, gold, green, teal, cyan, blue, purple
 
 -}
 
@@ -224,3 +238,51 @@ dateToX startDate_ date_ =
     in
     Date.diff Date.Days startDate date
         - (2 * Date.diff Date.Weeks startMonday date)
+
+
+{-| -}
+red : Color
+red =
+    Colors.red
+
+
+{-| -}
+pink : Color
+pink =
+    Colors.pink
+
+
+{-| -}
+gold : Color
+gold =
+    Colors.gold
+
+
+{-| -}
+green : Color
+green =
+    Colors.green
+
+
+{-| -}
+teal : Color
+teal =
+    Colors.teal
+
+
+{-| -}
+cyan : Color
+cyan =
+    Colors.cyan
+
+
+{-| -}
+blue : Color
+blue =
+    Colors.blue
+
+
+{-| -}
+purple : Color
+purple =
+    Colors.purple

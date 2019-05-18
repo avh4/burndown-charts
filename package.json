@@ -7,8 +7,9 @@
     "test": "npm run-script build-example && elm make --docs=docs.json && elm-format --validate .",
     "watch": "chokidar --initial elm.json 'src/**/*.elm' 'tests/**/*.elm' 'example/**/*.elm' -c 'npm test'",
     "build-example": "(cd example && elm make Main.elm)",
-    "run-example": "(cd example && elm reactor)",
-    "start": "concurrently --kill-others npm:watch npm:run-example"
+    "run-example": "(cd example && elm reactor --port 8000)",
+    "run-doc-preview": "elm-doc-preview -p 8001",
+    "start": "concurrently --kill-others npm:watch npm:run-example npm:run-doc-preview"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,7 @@
     "chokidar-cli": "^1.2.2",
     "concurrently": "^4.1.0",
     "elm": "^0.19.0-no-deps",
+    "elm-doc-preview": "^2.0.3",
     "elm-format": "^0.8.1"
   }
 }
