@@ -94,7 +94,7 @@ view model =
                 { title = Title.default "Points remaining"
                 , variable = Just << Tuple.second
                 , pixels = 400
-                , range = Range.custom (\range -> { range | min = 0, max = max range.max 25 })
+                , range = Range.custom (\range -> { range | min = 0, max = max range.max (toFloat <| Tuple.second model.baseline) + 1 })
                 , axisLine = AxisLine.full Colors.gray
                 , ticks = Ticks.int 12
                 }
