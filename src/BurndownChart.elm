@@ -1,8 +1,8 @@
-module BurndownChart exposing (Config, view)
+module BurndownChart exposing (Config, Date, view)
 
 {-|
 
-@docs Config, view
+@docs Config, Date, view
 
 -}
 
@@ -58,6 +58,12 @@ type alias Config =
     }
 
 
+{-| (year, month, day)
+-}
+type alias Date =
+    ( Int, Time.Month, Int )
+
+
 {-| **Show a burndown chart**
 -}
 view : Config -> Html msg
@@ -90,10 +96,10 @@ view model =
                         \i ->
                             let
                                 offset =
-                                    Date.weekdayNumber model.startDate
+                                    Date.weekdayNumber (tupleToDate model.startDate)
 
                                 day =
-                                    model.startDate
+                                    tupleToDate model.startDate
                                         |> Date.add Date.Days i
                                         |> Date.add Date.Days (2 * ((i + offset - 1) // 5))
 
@@ -196,9 +202,20 @@ view model =
         ]
 
 
+tupleToDate : Date -> Date.Date
+tupleToDate ( year, month, day ) =
+    Date.fromCalendarDate year month day
+
+
 dateToX : Date -> Date -> Int
-dateToX startDate date =
+dateToX startDate_ date_ =
     let
+        startDate =
+            tupleToDate startDate_
+
+        date =
+            tupleToDate date_
+
         startMonday =
             Date.fromWeekDate
                 (Date.year startDate)
