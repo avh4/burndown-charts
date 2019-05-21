@@ -1,6 +1,6 @@
 module BurndownChart exposing
     ( Config, Date, view
-    , Estimation, scopeBased, timeBased
+    , EstimationMethod, estimatedVelocity, targetDate
     , red, pink, gold, green, teal, cyan, blue, purple
     )
 
@@ -12,12 +12,16 @@ module BurndownChart exposing
 @docs Config, Date, view
 
 
-## Estimation
+## Estimation method
 
-A project can be scope-based (release will happen after a certain set of features are implemented), or time-based (release will happen on a specific date).
-For a burndown chart, the method used will determine what information is needed to calculate the goal line displayed on the chart.
+A burndown chart shows a baseline (or goal line) starting from the baseline date
+with the number of points remaining on that date to the estimated end date
+(with the slope of the line beind the estimated velocity).
 
-@docs Estimation, scopeBased, timeBased
+You can specify the target date (a time-based estimate) and have the estimated velocity be calculated;
+or you can specify the estimated velocity (a scope-based estimate) and have the target date be calculated.
+
+@docs EstimationMethod, estimatedVelocity, targetDate
 
 
 ## Colors
@@ -64,7 +68,9 @@ import Time
   - `name`: The name of the project. This will be used as the title of the chart.
   - `color`: The color used for the burndown line. If not given, this will use the default color from `terezka/line-charts`.
   - `startDate`: The start date of the project.
-  - `baseline`: A baseline estimate for the project. See [Estimation](#estimation). This is used to draw the goal line.
+  - `baseline`: A baseline estimate for the project. This is a tuple containing:
+      - The date on which the baseline was set (typically this will be the same as the project start date).
+      - The [`EstimationMethod`](#estimation-method) to use to calculate the goal line.
   - `milestones`: (optional) A list of intermediate milestones to draw on the chart. Each milestone includes:
       - The name of the milestone (consider using a single-character emoji for this!)
       - The number of points that will remain in the project after this milestone is completed
@@ -76,7 +82,7 @@ type alias Config =
     { name : String
     , color : Maybe Color
     , startDate : Date
-    , baseline : Estimation
+    , baseline : ( Date, EstimationMethod )
     , milestones : List ( String, Int, Maybe Date )
     , pointsRemaining : List Int
     }
@@ -88,46 +94,25 @@ type alias Date =
     ( Int, Time.Month, Int )
 
 
-{-| An estimation for when the project will be completed.
-This can be [`scopeBased`](#scopeBased) or [`timeBased`](#timeBased).
+{-| See ["Estimation method"](#estimation-method).
 -}
-type Estimation
-    = TimeBased
-        { estimationDate : Date
-        , targetDate : Date
-        }
-    | ScopeBased
-        { estimationDate : Date
-        , velocity : Float
-        }
+type EstimationMethod
+    = TargetDate Date
+    | EstimatedVelocity Float
 
 
-{-| A time-based estimate requires two things:
-
-  - the date on which the scope of the project was estimated
-  - the target release date
-
+{-| A time-based estimate where the target date is specified and the estimated velocity will be calculated.
 -}
-timeBased : Date -> Date -> Estimation
-timeBased estimationDate targetDate =
-    TimeBased
-        { estimationDate = estimationDate
-        , targetDate = targetDate
-        }
+targetDate : Date -> EstimationMethod
+targetDate =
+    TargetDate
 
 
-{-| A scope-based estimate requires two things:
-
-  - the date on which the scope of the project was estimated
-  - the estimated velocity of the team on that date
-
+{-| A scope-based estimate where the estimated velocity is specified and the target date will be calculated.
 -}
-scopeBased : Date -> Float -> Estimation
-scopeBased estimationDate velocity =
-    ScopeBased
-        { estimationDate = estimationDate
-        , velocity = velocity
-        }
+estimatedVelocity : Float -> EstimationMethod
+estimatedVelocity =
+    EstimatedVelocity
 
 
 {-| **Show a burndown chart**
@@ -135,33 +120,27 @@ scopeBased estimationDate velocity =
 view : Config -> Html msg
 view model =
     let
-        ( baselineDate, baselinePoints, targetDateX ) =
-            case model.baseline of
-                TimeBased estimation ->
-                    ( estimation.estimationDate
-                    , List.drop (dateToX model.startDate estimation.estimationDate)
-                        model.pointsRemaining
-                        |> List.head
-                        |> Maybe.withDefault 0
-                    , dateToX model.startDate estimation.targetDate
-                    )
+        baselineDate =
+            Tuple.first model.baseline
 
-                ScopeBased estimation ->
+        baselinePoints =
+            List.drop (dateToX model.startDate baselineDate)
+                model.pointsRemaining
+                |> List.head
+                |> Maybe.withDefault 0
+
+        targetDateX =
+            case Tuple.second model.baseline of
+                TargetDate date ->
+                    dateToX model.startDate date
+
+                EstimatedVelocity velocity ->
                     let
                         daysPerIteration =
                             5
-
-                        pointsOnEstimationDate =
-                            List.drop (dateToX model.startDate estimation.estimationDate)
-                                model.pointsRemaining
-                                |> List.head
-                                |> Maybe.withDefault 0
                     in
-                    ( estimation.estimationDate
-                    , pointsOnEstimationDate
-                    , dateToX model.startDate estimation.estimationDate
-                        + ceiling (toFloat pointsOnEstimationDate / estimation.velocity * daysPerIteration)
-                    )
+                    dateToX model.startDate baselineDate
+                        + ceiling (toFloat baselinePoints / velocity * daysPerIteration)
 
         maxX =
             max targetDateX (List.length model.pointsRemaining)

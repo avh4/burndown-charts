@@ -19,13 +19,13 @@ chartConfig model =
 
         baseline =
             if Date.compare model.date (Date.fromCalendarDate 2019 Apr 16) == LT then
-                BurndownChart.timeBased ( 2019, Apr, 9 ) ( 2019, May, 14 )
+                ( ( 2019, Apr, 9 ), BurndownChart.targetDate ( 2019, May, 14 ) )
 
             else if Date.compare model.date (Date.fromCalendarDate 2019 Apr 17) == LT then
-                BurndownChart.timeBased ( 2019, Apr, 16 ) ( 2019, May, 14 )
+                ( ( 2019, Apr, 16 ), BurndownChart.targetDate ( 2019, May, 14 ) )
 
             else
-                BurndownChart.timeBased ( 2019, Apr, 17 ) ( 2019, May, 14 )
+                ( ( 2019, Apr, 17 ), BurndownChart.targetDate ( 2019, May, 14 ) )
     in
     { name = "MVP"
     , color = Just BurndownChart.blue
