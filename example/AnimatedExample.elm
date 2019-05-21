@@ -19,18 +19,17 @@ chartConfig model =
 
         baseline =
             if Date.compare model.date (Date.fromCalendarDate 2019 Apr 16) == LT then
-                ( ( 2019, Apr, 9 ), 8 )
+                BurndownChart.timeBased ( 2019, Apr, 9 ) ( 2019, May, 14 )
 
             else if Date.compare model.date (Date.fromCalendarDate 2019 Apr 17) == LT then
-                ( ( 2019, Apr, 16 ), 24 )
+                BurndownChart.timeBased ( 2019, Apr, 16 ) ( 2019, May, 14 )
 
             else
-                ( ( 2019, Apr, 17 ), 24 )
+                BurndownChart.timeBased ( 2019, Apr, 17 ) ( 2019, May, 14 )
     in
     { name = "MVP"
     , color = Just BurndownChart.blue
     , startDate = ( 2019, Apr, 9 )
-    , targetDate = ( 2019, May, 14 )
     , baseline = baseline
     , milestones =
         [ ( "🐣", 21, at ( 2019, Apr, 23 ) )

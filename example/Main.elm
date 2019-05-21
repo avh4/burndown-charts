@@ -10,8 +10,8 @@ chartConfig =
     { name = "MVP"
     , color = Just BurndownChart.blue
     , startDate = ( 2019, Apr, 9 )
-    , targetDate = ( 2019, May, 14 )
-    , baseline = ( ( 2019, Apr, 17 ), 24 )
+    , baseline =
+        BurndownChart.timeBased ( 2019, Apr, 17 ) ( 2019, May, 14 )
     , milestones =
         [ ( "🐣", 21, Just ( 2019, Apr, 23 ) )
         , ( "📝", 14, Just ( 2019, Apr, 30 ) )
@@ -22,6 +22,25 @@ chartConfig =
     }
 
 
+scopeBasedExample : BurndownChart.Config
+scopeBasedExample =
+    { name = "MVP"
+    , color = Just BurndownChart.gold
+    , startDate = ( 2019, May, 17 )
+    , baseline =
+        BurndownChart.scopeBased ( 2019, May, 17 ) 7.5
+    , milestones =
+        [ ( "👩\u{200D}🎨", 17, Nothing )
+        , ( "📐", 8, Nothing )
+        , ( "🔍", 0, Nothing )
+        ]
+    , pointsRemaining = [ 34, 38, 38, 35, 35, 32 ]
+    }
+
+
 main : Html msg
 main =
-    BurndownChart.view chartConfig
+    Html.div []
+        [ BurndownChart.view chartConfig
+        , BurndownChart.view scopeBasedExample
+        ]

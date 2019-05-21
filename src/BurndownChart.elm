@@ -1,11 +1,23 @@
 module BurndownChart exposing
     ( Config, Date, view
+    , Estimation, scopeBased, timeBased
     , red, pink, gold, green, teal, cyan, blue, purple
     )
 
 {-|
 
+
+## Burndown charts
+
 @docs Config, Date, view
+
+
+## Estimation
+
+A project can be scope-based (release will happen after a certain set of features are implemented), or time-based (release will happen on a specific date).
+For a burndown chart, the method used will determine what information is needed to calculate the goal line displayed on the chart.
+
+@docs Estimation, scopeBased, timeBased
 
 
 ## Colors
@@ -52,8 +64,7 @@ import Time
   - `name`: The name of the project. This will be used as the title of the chart.
   - `color`: The color used for the burndown line. If not given, this will use the default color from `terezka/line-charts`.
   - `startDate`: The start date of the project.
-  - `targetDate`: The planned release date for the project. (If your project is scope-based, use your current velocity to estimate a target date.)
-  - `baseline`: The most recent date on which the scope of the project was set and the number of points estimated to be in scope at that time. This is used along with the `targetDate` to draw the goal line.
+  - `baseline`: A baseline estimate for the project. See [Estimation](#estimation). This is used to draw the goal line.
   - `milestones`: (optional) A list of intermediate milestones to draw on the chart. Each milestone includes:
       - The name of the milestone (consider using a single-character emoji for this!)
       - The number of points that will remain in the project after this milestone is completed
@@ -65,8 +76,7 @@ type alias Config =
     { name : String
     , color : Maybe Color
     , startDate : Date
-    , targetDate : Date
-    , baseline : ( Date, Int )
+    , baseline : Estimation
     , milestones : List ( String, Int, Maybe Date )
     , pointsRemaining : List Int
     }
@@ -78,15 +88,83 @@ type alias Date =
     ( Int, Time.Month, Int )
 
 
+{-| An estimation for when the project will be completed.
+This can be [`scopeBased`](#scopeBased) or [`timeBased`](#timeBased).
+-}
+type Estimation
+    = TimeBased
+        { estimationDate : Date
+        , targetDate : Date
+        }
+    | ScopeBased
+        { estimationDate : Date
+        , velocity : Float
+        }
+
+
+{-| A time-based estimate requires two things:
+
+  - the date on which the scope of the project was estimated
+  - the target release date
+
+-}
+timeBased : Date -> Date -> Estimation
+timeBased estimationDate targetDate =
+    TimeBased
+        { estimationDate = estimationDate
+        , targetDate = targetDate
+        }
+
+
+{-| A scope-based estimate requires two things:
+
+  - the date on which the scope of the project was estimated
+  - the estimated velocity of the team on that date
+
+-}
+scopeBased : Date -> Float -> Estimation
+scopeBased estimationDate velocity =
+    ScopeBased
+        { estimationDate = estimationDate
+        , velocity = velocity
+        }
+
+
 {-| **Show a burndown chart**
 -}
 view : Config -> Html msg
 view model =
     let
+        ( baselineDate, baselinePoints, targetDateX ) =
+            case model.baseline of
+                TimeBased estimation ->
+                    ( estimation.estimationDate
+                    , List.drop (dateToX model.startDate estimation.estimationDate)
+                        model.pointsRemaining
+                        |> List.head
+                        |> Maybe.withDefault 0
+                    , dateToX model.startDate estimation.targetDate
+                    )
+
+                ScopeBased estimation ->
+                    let
+                        daysPerIteration =
+                            5
+
+                        pointsOnEstimationDate =
+                            List.drop (dateToX model.startDate estimation.estimationDate)
+                                model.pointsRemaining
+                                |> List.head
+                                |> Maybe.withDefault 0
+                    in
+                    ( estimation.estimationDate
+                    , pointsOnEstimationDate
+                    , dateToX model.startDate estimation.estimationDate
+                        + ceiling (toFloat pointsOnEstimationDate / estimation.velocity * daysPerIteration)
+                    )
+
         maxX =
-            max
-                (dateToX model.startDate model.targetDate)
-                (List.length model.pointsRemaining)
+            max targetDateX (List.length model.pointsRemaining)
     in
     LineChart.viewCustom
         { y =
@@ -99,7 +177,7 @@ view model =
                         (\range ->
                             { range
                                 | min = 0
-                                , max = max range.max (toFloat <| Tuple.second model.baseline) + 1
+                                , max = max range.max (toFloat <| baselinePoints) + 1
                             }
                         )
                 , axisLine = AxisLine.full Colors.gray
@@ -163,20 +241,17 @@ view model =
                     let
                         viewRelease ( name, points, released ) =
                             let
-                                baselinePoints =
-                                    Tuple.second model.baseline
-
                                 day =
                                     case released of
                                         Just d ->
                                             dateToX model.startDate d
 
                                         Nothing ->
-                                            dateToX model.startDate (Tuple.first model.baseline)
+                                            dateToX model.startDate baselineDate
                                                 + ceiling
                                                     (toFloat (baselinePoints - points)
                                                         / toFloat baselinePoints
-                                                        * toFloat (dateToX model.startDate model.targetDate - dateToX model.startDate (Tuple.first model.baseline))
+                                                        * toFloat (targetDateX - dateToX model.startDate baselineDate)
                                                     )
 
                                 isReleased =
@@ -223,8 +298,8 @@ view model =
             Dots.none
             "Goal"
             [ 4, 4 ]
-            [ ( dateToX model.startDate (Tuple.first model.baseline), toFloat <| Tuple.second model.baseline )
-            , ( dateToX model.startDate model.targetDate, 0 )
+            [ ( dateToX model.startDate baselineDate, toFloat <| baselinePoints )
+            , ( targetDateX, 0 )
             ]
         , LineChart.line (model.color |> Maybe.withDefault Colors.pink) Dots.circle "Actual" (List.indexedMap (\i x -> ( i, toFloat x )) model.pointsRemaining)
         ]
