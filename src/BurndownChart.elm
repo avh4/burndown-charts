@@ -57,7 +57,7 @@ import Time
   - `milestones`: (optional) A list of intermediate milestones to draw on the chart. Each milestone includes:
       - The name of the milestone (consider using a single-character emoji for this!)
       - The number of points that will remain in the project after this milestone is completed
-      - The date the milestone we delivered, or `Nothing` if it has not been delivered yet.
+      - The date the milestone was accepted, or `Nothing` if it has not been accepted yet.
   - `pointsRemaining`: A list containing the number of points remaining at the start of each day of the project.
 
 -}
@@ -94,7 +94,14 @@ view model =
                 { title = Title.default "Points remaining"
                 , variable = Just << Tuple.second
                 , pixels = 400
-                , range = Range.custom (\range -> { range | min = 0, max = max range.max (toFloat <| Tuple.second model.baseline) + 1 })
+                , range =
+                    Range.custom
+                        (\range ->
+                            { range
+                                | min = 0
+                                , max = max range.max (toFloat <| Tuple.second model.baseline) + 1
+                            }
+                        )
                 , axisLine = AxisLine.full Colors.gray
                 , ticks = Ticks.int 12
                 }
@@ -103,7 +110,14 @@ view model =
                 { title = Title.default "Date"
                 , variable = Just << toFloat << Tuple.first
                 , pixels = 220 + 27 * maxX
-                , range = Range.custom (\range -> { range | max = toFloat maxX })
+                , range =
+                    Range.custom
+                        (\range ->
+                            { range
+                                | min = 0
+                                , max = max range.max (toFloat maxX)
+                            }
+                        )
                 , axisLine = AxisLine.full Colors.gray
                 , ticks =
                     Ticks.intCustom maxX <|
