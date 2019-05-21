@@ -35,7 +35,7 @@ import Time exposing (Month(..))
 main : Html msg
 main =
     BurndownChart.view
-        { name = ""
+        { name = "100 Year Starship"
         , color = Nothing
         , startDate = (2019, Apr, 9)
         , baseline =
