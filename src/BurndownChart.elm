@@ -1,5 +1,5 @@
 module BurndownChart exposing
-    ( Config, Date, view
+    ( view, Date, Config
     , EstimationMethod, estimatedVelocity, targetDate
     , red, pink, gold, green, teal, cyan, blue, purple
     )
@@ -9,24 +9,17 @@ module BurndownChart exposing
 
 ## Burndown charts
 
-@docs Config, Date, view
+@docs view, Date, Config
 
 
 ## Estimation method
-
-A burndown chart shows a baseline (or goal line) starting from the baseline date
-with the number of points remaining on that date to the estimated end date
-(with the slope of the line beind the estimated velocity).
-
-You can specify the target date (a time-based estimate) and have the estimated velocity be calculated;
-or you can specify the estimated velocity (a scope-based estimate) and have the target date be calculated.
 
 @docs EstimationMethod, estimatedVelocity, targetDate
 
 
 ## Colors
 
-These are the basic colors available in `terezka/line-charts`, but are exposed here for convenience so you don't have to add more direct dependencies.
+These are the basic colors available in `terezka/line-charts` exposed here for convenience so you don't have to add `line-charts` as a direct dependency.
 
 If you want other colors, you can use colors from [`LineCharts.Colors`](https://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Colors),
 any color you can create with [`avh4/elm-color`](https://package.elm-lang.org/packages/avh4/elm-color/latest),
@@ -70,7 +63,7 @@ import Time
   - `startDate`: The start date of the project.
   - `baseline`: A baseline estimate for the project. This is a tuple containing:
       - The date on which the baseline was set (typically this will be the same as the project start date).
-      - The [`EstimationMethod`](#estimation-method) to use to calculate the goal line.
+      - The [`EstimationMethod`](#EstimationMethod) to use to calculate the goal line.
   - `milestones`: (optional) A list of intermediate milestones to draw on the chart. Each milestone includes:
       - The name of the milestone (consider using a single-character emoji for this!)
       - The number of points that will remain in the project after this milestone is completed
@@ -94,7 +87,13 @@ type alias Date =
     ( Int, Time.Month, Int )
 
 
-{-| See ["Estimation method"](#estimation-method).
+{-| A burndown chart shows a baseline (or goal line) starting from the baseline date
+with the number of points remaining on that date to the estimated end date
+(with the slope of the line beind the estimated velocity).
+
+You can specify the target date (a time-based estimate) and have the estimated velocity be calculated;
+or you can specify the estimated velocity (a scope-based estimate) and have the target date be calculated.
+
 -}
 type EstimationMethod
     = TargetDate Date
@@ -116,6 +115,9 @@ estimatedVelocity =
 
 
 {-| **Show a burndown chart**
+
+See [`Config`](#Config).
+
 -}
 view : Config -> Html msg
 view model =
