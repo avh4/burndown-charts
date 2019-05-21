@@ -5,7 +5,7 @@
 This is an Elm package that makes it easy to create [burndown charts](https://en.wikipedia.org/wiki/Burn_down_chart).
 It is built on top of [`terezka/line-charts`](https://package.elm-lang.org/packages/terezka/line-charts/latest/) -- thanks, terezka!
 
-![](screenshot.gif)
+![](https://github.com/avh4/burndown-charts/raw/master/screenshot.gif)
 
 
 ## Step by step
@@ -47,7 +47,7 @@ main =
         }
 ```
 
-![image of the resulting burndown chart for the project setup code example](basic.png)
+![image of the resulting burndown chart for the project setup code example](https://github.com/avh4/burndown-charts/raw/master/basic.png)
 
 
 ### Updating the chart
@@ -63,7 +63,7 @@ At the start of each day, append the current number of points remaining to the `
         }
 ```
 
-![image of the resulting burndown chart for the "update the chart" code example](updated-points.png)
+![image of the resulting burndown chart for the "update the chart" code example](https://github.com/avh4/burndown-charts/raw/master/updated-points.png)
 
 
 ### Milestones (optional)
@@ -86,4 +86,4 @@ You can have your chart show intermediate milestones by listing them in the `mil
         }
 ```
 
-![image of the resulting burndown chart for the "milestones" code example](milestones.png)
+![image of the resulting burndown chart for the "milestones" code example](https://github.com/avh4/burndown-charts/raw/master/milestones.png)
