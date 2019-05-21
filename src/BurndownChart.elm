@@ -148,7 +148,29 @@ view model =
     LineChart.viewCustom
         { y =
             Axis.custom
-                { title = Title.default "Points remaining"
+                { title =
+                    Title.custom
+                        (\data axis -> axis.max)
+                        0
+                        0
+                        (Svg.g
+                            []
+                            [ Svg.text_
+                                [ Svg.Attributes.style "pointer-events: none;"
+                                ]
+                                [ Svg.tspan
+                                    [ Svg.Attributes.x "0"
+                                    , Svg.Attributes.y "-1.2em"
+                                    ]
+                                    [ Svg.text "Points " ]
+                                , Svg.tspan
+                                    [ Svg.Attributes.x "0"
+                                    , Svg.Attributes.dy "1.2em"
+                                    ]
+                                    [ Svg.text "remaining" ]
+                                ]
+                            ]
+                        )
                 , variable = Just << Tuple.second
                 , pixels = 400
                 , range =
