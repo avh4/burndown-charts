@@ -23,8 +23,8 @@ To create your burndown chart, you'll need the following info about your project
 - The **start date of the project**.  Put this in the `startDate` and `baseline` fields.
 - The **number of story points in scope** for the project.  Put this in the `pointsRemaining` field.
 - One of the following:
-    - The **estimated velocity** of your team.  Put this in the `baseline` field with `BurndownChart.scopeBased`.
-    - The **target release date of the project**.  Put this in the `baseline` field with `BurndownChart.timeBased`.
+    - The **estimated velocity** of your team.  Put this in the `baseline` field with `BurndownChart.estimatedVelocity`.
+    - The **target release date of the project**.  Put this in the `baseline` field with `BurndownChart.targetDate`.
 
 *Code example: Today is April 9th, the project is starting with 8 points in the backlog, and there is a target release date of May 14th.*
 
