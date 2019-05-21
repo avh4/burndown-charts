@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-shopt -s nullglob
-
 # make animated gifs
 colors=64
 for i in *-1.png; do
@@ -31,7 +29,4 @@ for i in *.png; do
     pngcrush -brute -reduce -ow "$i"
 done
 
-# optimize svgs
-svgo *.svg
-
-ls -lh *.png *.gif *.svg
+ls -lh *.png *.gif
